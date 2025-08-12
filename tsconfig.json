@@ -3,6 +3,10 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
+    "baseUrl": ".",
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "node",
     "paths": {
       "@/*": ["./src/*"]
     }

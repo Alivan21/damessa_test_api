@@ -2,6 +2,7 @@
   "name": "damessa_test_api",
   "version": "1.0.0",
   "main": "dist/index.js",
+  "type": "module",
   "scripts": {
     "dev": "tsx --watch src/index.ts",
     "start": "node dist/index.js",
@@ -29,7 +30,9 @@
   "devDependencies": {
     "@eslint/js": "^9.33.0",
     "@tsconfig/node22": "^22.0.2",
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.2.1",
     "eslint": "^9.33.0",
     "eslint-plugin-perfectionist": "^4.15.0",
