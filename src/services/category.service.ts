@@ -102,7 +102,7 @@ export const updateCategory = async (
   id: string,
   { name, userId }: { name: string; userId?: string },
 ) => {
-  const [result] = await sequelize.query(
+  const [, affectedRows] = await sequelize.query(
     `UPDATE categories SET name = :name, modified_by = :modified_by, modified_at = :modified_at
      WHERE id = :id AND deleted_at IS NULL`,
     {
@@ -110,13 +110,12 @@ export const updateCategory = async (
       replacements: { id, name, modified_by: userId ?? null, modified_at: new Date() },
     },
   );
-  const affected = Array.isArray(result) ? 0 : (result as unknown as number);
-  if (!affected) return null;
+  if (!affectedRows) return null;
   return getCategoryById(id);
 };
 
 export const deleteCategory = async (id: string, { userId }: { userId?: string }) => {
-  const [result] = await sequelize.query(
+  const [, affectedRows] = await sequelize.query(
     `UPDATE categories SET deleted_at = :deleted_at, deleted_by = :deleted_by
      WHERE id = :id AND deleted_at IS NULL`,
     {
@@ -124,6 +123,5 @@ export const deleteCategory = async (id: string, { userId }: { userId?: string }
       replacements: { id, deleted_at: new Date(), deleted_by: userId ?? null },
     },
   );
-  const affected = Array.isArray(result) ? 0 : (result as unknown as number);
-  return Boolean(affected);
+  return Boolean(affectedRows);
 };

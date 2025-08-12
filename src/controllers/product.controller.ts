@@ -69,7 +69,7 @@ export const update = async (req: Request, res: Response) => {
     };
     const updated = await updateProduct(id, { name, price, stock, category_id, userId });
     if (!updated) return errorResponse(res, 404, "Product not found");
-    return successResponse(res, updated, "Product updated successfully");
+    return successResponse(res, null, "Product updated successfully");
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return errorResponse(res, 400, message);
@@ -82,7 +82,7 @@ export const remove = async (req: Request, res: Response) => {
     const { id } = req.params;
     const deleted = await deleteProduct(id, { userId });
     if (!deleted) return errorResponse(res, 404, "Product not found");
-    return successResponse(res, { id }, "Product deleted successfully");
+    return successResponse(res, null, "Product deleted successfully");
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return errorResponse(res, 400, message);

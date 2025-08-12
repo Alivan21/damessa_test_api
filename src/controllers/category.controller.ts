@@ -54,7 +54,7 @@ export const update = async (req: Request, res: Response) => {
     const { name } = req.body as { name: string };
     const updated = await updateCategory(id, { name, userId });
     if (!updated) return errorResponse(res, 404, "Category not found");
-    return successResponse(res, updated, "Category updated successfully");
+    return successResponse(res, null, "Category updated successfully");
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return errorResponse(res, 500, message);
@@ -67,7 +67,7 @@ export const remove = async (req: Request, res: Response) => {
     const { id } = req.params;
     const deleted = await deleteCategory(id, { userId });
     if (!deleted) return errorResponse(res, 404, "Category not found");
-    return successResponse(res, { id }, "Category deleted successfully");
+    return successResponse(res, null, "Category deleted successfully");
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     return errorResponse(res, 500, message);

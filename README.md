@@ -1,38 +1,38 @@
 # damessa_test_api
 
-API sederhana menggunakan Node.js, TypeScript, Express, Sequelize (MySQL), dan Umzug untuk migrasi dan seeder.
+Simple API pakai Node.js + TypeScript + Express + Sequelize (MySQL) + Umzug (migration & seeder).
 
-## Prasyarat
+## Yang dibutuhin (Prerequisites)
 
-- Node.js 20+ (disarankan 22)
-- PNPM (disarankan) atau NPM
+- Node.js 20+ (recommended 22)
+- PNPM (recommended) atau NPM
 - MySQL 8+
 
-## Cara Instalasi & Menjalankan Aplikasi
+## Cara install & run
 
-1. Clone repo ini, lalu masuk ke folder proyek.
-2. Install dependency:
-   - Dengan PNPM: `pnpm install`
-   - Atau NPM: `npm install`
-3. Siapkan file `.env` (lihat contoh di bawah) dan pastikan database MySQL sudah dibuat.
-4. Jalankan migrasi dan seeder (opsional namun direkomendasikan untuk data awal):
+1. Clone repo ini dan masuk ke folder project.
+2. Install dependencies:
+   - PNPM: `pnpm install`
+   - NPM: `npm install`
+3. Siapkan `.env` (contoh di bawah) dan pastikan database MySQL sudah dibuat.
+4. Run migration & seeder:
    - `pnpm migrate:up`
    - `pnpm seed:up`
-   - Atau dapat menggunakan: `pnpm db:fresh` (drop semua seed/migrasi lalu ulang dari awal)
-5. Mode pengembangan (hot-reload): `pnpm dev`
-6. Build produksi: `pnpm build`
-7. Menjalankan build produksi: `pnpm start`
+   - Atau pakai: `pnpm db:fresh` (drop semua seed/migrasi lalu setup ulang dari awal)
+5. Dev mode (hot-reload): `pnpm dev`
+6. Build production: `pnpm build`
+7. Start production build: `pnpm start`
 
-Aplikasi secara default berjalan pada `http://localhost:3000/api`.
+Default base URL: `http://localhost:3000/api`.
 
-## Variabel Lingkungan (.env)
+## Environment (.env)
 
-Contoh konfigurasi `.env`:
+Sample `.env`:
 
 ```env
-# Koneksi Database MySQL
+# MySQL Connection
 DB_HOST=localhost
-DB_PORT=3306           # Port default MySQL adalah 3306
+DB_PORT=3306           # default MySQL port
 DB_NAME=damessa_db
 DB_USER=root
 DB_PASS=your_password
@@ -40,49 +40,55 @@ DB_PASS=your_password
 # Server
 PORT=3000
 
-# Keamanan
+# Security
 JWT_SECRET=supersecret
 ```
 
-Catatan:
+Notes:
 
-- Pastikan database `DB_NAME` sudah dibuat di MySQL sebelum menjalankan migrasi.
-- Nilai default di kode: jika tidak diisi, `PORT` dan `JWT_SECRET` memiliki default, namun sangat disarankan mengatur secara eksplisit.
+- Pastikan database `DB_NAME` sudah ada di MySQL sebelum jalanin migration.
+- Sebaiknya set `PORT` dan `JWT_SECRET` sendiri (jangan pakai default untuk production).
 
-## Perintah Terkait Database
+## Database commands
 
-- Jalankan semua migrasi: `pnpm migrate:up`
-- Batalkan semua migrasi: `pnpm migrate:down`
-- Lihat status migrasi: `pnpm migrate:status`
-- Lihat migrasi pending: `pnpm migrate:pending`
-- Jalankan semua seeder: `pnpm seed:up`
-- Batalkan semua seeder: `pnpm seed:down`
-- Lihat status seeder: `pnpm seed:status`
-- Lihat seeder pending: `pnpm seed:pending`
-- Reset database (drop seeder, drop migrasi, migrasi ulang, seed ulang): `pnpm db:fresh`
+- Migrate all: `pnpm migrate:up`
+- Rollback all: `pnpm migrate:down`
+- Migration status: `pnpm migrate:status`
+- Pending migrations: `pnpm migrate:pending`
+- Seed all: `pnpm seed:up`
+- Unseed all: `pnpm seed:down`
+- Seeder status: `pnpm seed:status`
+- Pending seeders: `pnpm seed:pending`
+- Fresh reset (drop seeder & migration, setup ulang): `pnpm db:fresh`
 
-## Struktur Folder
+## API docs (Postman)
+
+- Koleksi Postman ada di folder `docs/`: `Damessa Test API.postman_collection.json`.
+- Import ke Postman, sesuaikan `base_url` kalau perlu (default `http://localhost:3000/api`).
+- Login dulu biar variabel `{{token}}` otomatis keisi sebelum akses endpoint yang butuh Bearer token.
+
+## Folder structure
 
 ```
 .
 ├─ docs/
 ├─ src/
-│  ├─ app.ts                     # Inisialisasi Express, middleware dasar, mount routes, cek koneksi DB
-│  ├─ index.ts                   # Entry point server (listen pada PORT)
+│  ├─ app.ts                     # Init Express, basic middleware, mount routes, DB connection check
+│  ├─ index.ts                   # Server entry (listen on PORT)
 │  ├─ config/
-│  │  ├─ env.ts                 # Pembacaan variabel lingkungan (.env)
-│  │  └─ database.ts            # Inisialisasi Sequelize (MySQL)
-│  ├─ controllers/              # Controller untuk menangani request/response
-│  ├─ helpers/                  # Helper utilitas (bcrypt, jwt, pagination, response, dll.)
-│  ├─ middlewares/              # Middleware (auth, validation)
-│  ├─ migrations/               # File migrasi database (Umzug)
-│  ├─ models/                   # Definisi model Sequelize (User, Category, Product)
-│  ├─ routes/                   # Definisi route Express (prefix dengan /api)
-│  ├─ seeders/                  # Seeder data (Umzug) + data JSON
+│  │  ├─ env.ts                 # Read environment vars (.env)
+│  │  └─ database.ts            # Init Sequelize (MySQL)
+│  ├─ controllers/              # Request/response handler
+│  ├─ helpers/                  # Utilities (bcrypt, jwt, pagination, response, etc.)
+│  ├─ middlewares/              # Auth & validation middleware
+│  ├─ migrations/               # Database migrations (Umzug)
+│  ├─ models/                   # Sequelize models (User, Category, Product)
+│  ├─ routes/                   # Express routes (prefix /api)
+│  ├─ seeders/                  # Seed data (Umzug) + JSON data
 │  ├─ services/                 # Business logic (auth, category, product, pagination)
-│  ├─ validators/               # Validasi request menggunakan Zod
-│  ├─ migrate.ts                # Runner CLI untuk migrasi (Umzug)
-│  └─ seed.ts                   # Runner CLI untuk seeder (Umzug)
+│  ├─ validators/               # Request validation (Zod)
+│  ├─ migrate.ts                # Migration runner (Umzug)
+│  └─ seed.ts                   # Seeder runner (Umzug)
 ├─ eslint.config.js             # Konfigurasi ESLint
 ├─ tsconfig.json                # Konfigurasi TypeScript
 ├─ pnpm-workspace.yaml          # Konfigurasi workspace PNPM
@@ -90,34 +96,21 @@ Catatan:
 └─ package.json                 # Skrip dan dependency
 ```
 
-## Tools/Library yang Digunakan
+## Tools & Libraries
 
-- Runtime & Bahasa
-  - Node.js, TypeScript
-- Framework & Core
-  - Express (HTTP server & routing)
-- Database & ORM
-  - Sequelize (ORM untuk MySQL)
-  - mysql2 (driver MySQL)
-  - Umzug (migrasi & seeder)
-- Keamanan & Utilitas
-  - dotenv (env vars)
-  - bcrypt (hashing password)
-  - jsonwebtoken (JWT)
-  - zod (validasi schema request)
-- Pengembangan
-  - tsx (dev runner TypeScript)
-  - eslint, eslint-plugin-perfectionist, typescript-eslint
-  - prettier
-  - @tsconfig/node22
+- Runtime & language: Node.js, TypeScript
+- Framework & core: Express (HTTP server & routing)
+- Database & ORM: Sequelize (MySQL), mysql2 (driver), Umzug (migrations & seeders)
+- Security & utils: dotenv, bcrypt, jsonwebtoken (JWT), zod (request schema validation)
+- Dev tools: tsx, eslint (+perfectionist, typescript-eslint), prettier, @tsconfig/node22
 
-## Skrip Penting (package.json)
+## Useful scripts (package.json)
 
-- Pengembangan: `pnpm dev`
+- Dev: `pnpm dev`
 - Build: `pnpm build`
-- Start produksi: `pnpm start`
-- Lint: `pnpm lint` | Perbaiki otomatis: `pnpm lint:fix`
-- Format: `pnpm format` | Cek format: `pnpm format:check`
-- Migrasi DB: `pnpm migrate:up` | `pnpm migrate:down` | `pnpm migrate:status` | `pnpm migrate:pending`
-- Seeder DB: `pnpm seed:up` | `pnpm seed:down` | `pnpm seed:status` | `pnpm seed:pending`
-- Reset DB cepat: `pnpm db:fresh`
+- Start (production): `pnpm start`
+- Lint: `pnpm lint` | Fix: `pnpm lint:fix`
+- Format: `pnpm format` | Check: `pnpm format:check`
+- Migrations: `pnpm migrate:up` | `pnpm migrate:down` | `pnpm migrate:status` | `pnpm migrate:pending`
+- Seeders: `pnpm seed:up` | `pnpm seed:down` | `pnpm seed:status` | `pnpm seed:pending`
+- Fresh reset: `pnpm db:fresh`
