@@ -1,4 +1,5 @@
-import { Model, Optional } from "sequelize";
+import { sequelize } from "@/config/database";
+import { DataTypes, Model, Optional } from "sequelize";
 
 export interface ProductAttributes {
   id: string;
@@ -43,4 +44,34 @@ export class Product
   declare deleted_by: string | null;
 }
 
-// Intentionally no runtime initialization here. The table is managed via migrations.
+Product.init(
+  {
+    id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      primaryKey: true,
+      defaultValue: DataTypes.UUIDV4,
+    },
+    name: { type: DataTypes.STRING, allowNull: false },
+    price: { type: DataTypes.DECIMAL(15, 2), allowNull: false },
+    stock: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    category_id: { type: DataTypes.UUID, allowNull: false },
+    created_by: { type: DataTypes.UUID, allowNull: true },
+    modified_by: { type: DataTypes.UUID, allowNull: true },
+    deleted_by: { type: DataTypes.UUID, allowNull: true },
+    created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+    modified_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+    deleted_at: { type: DataTypes.DATE, allowNull: true },
+  },
+  {
+    sequelize,
+    tableName: "products",
+    modelName: "Product",
+    underscored: true,
+    timestamps: true,
+    createdAt: "created_at",
+    updatedAt: "modified_at",
+    paranoid: true,
+    deletedAt: "deleted_at",
+  },
+);

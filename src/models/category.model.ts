@@ -1,4 +1,5 @@
-import { Model, Optional } from "sequelize";
+import { sequelize } from "@/config/database";
+import { DataTypes, Model, Optional } from "sequelize";
 
 export interface CategoryAttributes {
   id: string;
@@ -29,3 +30,32 @@ export class Category
   declare readonly deleted_at: Date | null;
   declare deleted_by: string | null;
 }
+
+Category.init(
+  {
+    id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      primaryKey: true,
+      defaultValue: DataTypes.UUIDV4,
+    },
+    name: { type: DataTypes.STRING, allowNull: false },
+    created_by: { type: DataTypes.UUID, allowNull: true },
+    modified_by: { type: DataTypes.UUID, allowNull: true },
+    deleted_by: { type: DataTypes.UUID, allowNull: true },
+    created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+    modified_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+    deleted_at: { type: DataTypes.DATE, allowNull: true },
+  },
+  {
+    sequelize,
+    tableName: "categories",
+    modelName: "Category",
+    underscored: true,
+    timestamps: true,
+    createdAt: "created_at",
+    updatedAt: "modified_at",
+    paranoid: true,
+    deletedAt: "deleted_at",
+  },
+);

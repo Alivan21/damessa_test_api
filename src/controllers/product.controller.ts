@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 
 import { errorResponse, successResponse } from "@/helpers/response.helper";
 import { RequestWithUser } from "@/middlewares/auth.middleware";
+import { parsePaginationQuery } from "@/services/pagination.service";
 import {
   createProduct,
   deleteProduct,
@@ -12,25 +13,8 @@ import {
 
 export const list = async (req: Request, res: Response) => {
   try {
-    const {
-      page = "1",
-      per_page = "10",
-      search = "",
-      sort_by = "created_at",
-      sort_dir = "desc",
-    } = req.query as Record<string, string>;
-
-    const basePath = `${req.protocol}://${req.get("host")}${req.baseUrl}${req.path}`;
-
-    const result = await getProducts({
-      page: Number(page),
-      perPage: Number(per_page),
-      search,
-      sortBy: sort_by,
-      sortDir: sort_dir.toLowerCase() === "asc" ? "asc" : "desc",
-      basePath,
-      query: req.query,
-    });
+    const params = parsePaginationQuery(req);
+    const result = await getProducts(params);
 
     return successResponse(res, result, "Products fetched successfully");
   } catch (error) {

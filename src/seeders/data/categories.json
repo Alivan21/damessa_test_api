@@ -1,1 +1,5 @@
-[{ "name": "Electronics" }, { "name": "Books" }, { "name": "Home & Kitchen" }]
+[
+  { "id": "e7b8dc52-42d9-4eb6-8bfa-3b3d7b6f9a91", "name": "Electronics" },
+  { "id": "5a3c1f97-9b0f-4f1a-9a7e-12cba4c7e2dd", "name": "Books" },
+  { "id": "8d9f2b14-0a8e-4e73-bd67-1b5fa36b22c4", "name": "Home & Kitchen" }
+]

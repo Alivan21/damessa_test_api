@@ -3,18 +3,18 @@
     "name": "Basic T-Shirt",
     "price": 9.99,
     "stock": 100,
-    "category_id": "${CATEGORY_ID_PLACEHOLDER}"
+    "category_id": "8d9f2b14-0a8e-4e73-bd67-1b5fa36b22c4"
   },
   {
     "name": "Wireless Mouse",
     "price": 24.5,
     "stock": 50,
-    "category_id": "${CATEGORY_ID_PLACEHOLDER}"
+    "category_id": "e7b8dc52-42d9-4eb6-8bfa-3b3d7b6f9a91"
   },
   {
     "name": "Notebook",
     "price": 3.25,
     "stock": 500,
-    "category_id": "${CATEGORY_ID_PLACEHOLDER}"
+    "category_id": "5a3c1f97-9b0f-4f1a-9a7e-12cba4c7e2dd"
   }
 ]

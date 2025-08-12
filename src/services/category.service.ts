@@ -2,19 +2,15 @@ import { randomUUID } from "node:crypto";
 import { QueryTypes } from "sequelize";
 
 import { sequelize } from "@/config/database";
-import {
-  buildUrl,
-  PaginationMeta,
-  PaginationMetaLink,
-  SortDirection,
-} from "@/helpers/pagination.helper";
+import { SortDirection } from "@/helpers/pagination.helper";
+import { buildPaginationMeta, sanitizePagination } from "@/services/pagination.service";
 
 export interface CategoriesQueryParams {
   page: number;
   perPage: number;
   search?: string;
   sortBy?: string;
-  sortDir?: SortDirection;
+  order?: SortDirection;
   basePath: string;
   query: Record<string, unknown>;
 }
@@ -26,16 +22,14 @@ export const getCategories = async ({
   perPage,
   search = "",
   sortBy = "created_at",
-  sortDir = "desc",
+  order = "desc",
   basePath,
   query,
 }: CategoriesQueryParams) => {
-  const sanitizedPage = Math.max(1, Number.isFinite(page) ? page : 1);
-  const sanitizedPerPage = Math.max(1, Math.min(100, Number.isFinite(perPage) ? perPage : 10));
-  const offset = (sanitizedPage - 1) * sanitizedPerPage;
+  const { sanitizedPage, sanitizedPerPage, offset } = sanitizePagination(page, perPage);
 
   const safeSortBy = ALLOWED_SORT_FIELDS.has(sortBy) ? sortBy : "created_at";
-  const direction = sortDir.toLowerCase() === "asc" ? "ASC" : "DESC";
+  const direction = order.toLowerCase() === "asc" ? "ASC" : "DESC";
 
   const whereClauses: string[] = ["deleted_at IS NULL"];
   const replacements: Record<string, unknown> = {};
@@ -63,45 +57,15 @@ export const getCategories = async ({
     },
   );
 
-  const lastPage = Math.max(1, Math.ceil(count / sanitizedPerPage));
-  const currentPage = Math.min(sanitizedPage, lastPage);
-
-  const path = new URL(basePath).origin + new URL(basePath).pathname;
-  const first_page_url = buildUrl(basePath, 1, sanitizedPerPage, query)!;
-  const last_page_url = buildUrl(basePath, lastPage, sanitizedPerPage, query)!;
-  const next_page_url =
-    currentPage < lastPage ? buildUrl(basePath, currentPage + 1, sanitizedPerPage, query) : null;
-  const prev_page_url =
-    currentPage > 1 ? buildUrl(basePath, currentPage - 1, sanitizedPerPage, query) : null;
-
-  const links: PaginationMetaLink[] = [
-    { url: prev_page_url, active: false },
-    ...Array.from({ length: lastPage }).map((_, i) => {
-      const p = i + 1;
-      return {
-        url: buildUrl(basePath, p, sanitizedPerPage, query)!,
-        active: p === currentPage,
-      };
-    }),
-    { url: next_page_url, active: false },
-  ];
-
-  const meta: PaginationMeta = {
-    current_page: currentPage,
-    first_page_url,
-    from: count === 0 ? 0 : offset + 1,
-    last_page: lastPage,
-    last_page_url,
-    links,
-    next_page_url,
-    path,
-    per_page: sanitizedPerPage,
-    prev_page_url,
-    to: Math.min(offset + sanitizedPerPage, count),
+  const meta = buildPaginationMeta({
+    basePath,
+    query,
     total: count,
-  };
+    page: sanitizedPage,
+    perPage: sanitizedPerPage,
+  });
 
-  return { data: rows, meta };
+  return { items: rows, meta };
 };
 
 export const getCategoryById = async (id: string) => {

@@ -1,13 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { ZodSchema } from "zod";
+import { ZodError, ZodSchema } from "zod";
 
 import { errorResponse } from "@/helpers/response.helper";
-
-interface ValidationError {
-  errors: {
-    message: string;
-  }[];
-}
 
 export const validate =
   (schema: ZodSchema) => (req: Request, res: Response, next: NextFunction) => {
@@ -15,7 +9,11 @@ export const validate =
       schema.parse(req.body);
       next();
     } catch (err: unknown) {
-      const validationError = err as ValidationError;
-      return errorResponse(res, 400, validationError.errors[0].message || "Validation error");
+      if (err instanceof ZodError) {
+        const firstIssue = err.issues?.[0];
+        const message = firstIssue?.message || "Validation error";
+        return errorResponse(res, 400, message);
+      }
+      return errorResponse(res, 400, "Validation error");
     }
   };
