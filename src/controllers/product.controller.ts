@@ -1,14 +1,14 @@
-import { RequestWithUser } from "@/middlewares/auth.middleware";
 import { Request, Response } from "express";
 
 import { errorResponse, successResponse } from "@/helpers/response.helper";
+import { RequestWithUser } from "@/middlewares/auth.middleware";
 import {
-  createCategory,
-  deleteCategory,
-  getCategories,
-  getCategoryById,
-  updateCategory,
-} from "@/services/category.service";
+  createProduct,
+  deleteProduct,
+  getProductById,
+  getProducts,
+  updateProduct,
+} from "@/services/product.service";
 
 export const list = async (req: Request, res: Response) => {
   try {
@@ -22,7 +22,7 @@ export const list = async (req: Request, res: Response) => {
 
     const basePath = `${req.protocol}://${req.get("host")}${req.baseUrl}${req.path}`;
 
-    const result = await getCategories({
+    const result = await getProducts({
       page: Number(page),
       perPage: Number(per_page),
       search,
@@ -32,34 +32,44 @@ export const list = async (req: Request, res: Response) => {
       query: req.query,
     });
 
-    return successResponse(res, result, "Categories fetched successfully");
+    return successResponse(res, result, "Products fetched successfully");
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    return errorResponse(res, 500, message);
+    return errorResponse(res, 400, message);
   }
 };
 
 export const detail = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const category = await getCategoryById(id);
-    if (!category) return errorResponse(res, 404, "Category not found");
-    return successResponse(res, category, "Category fetched successfully");
+    const product = await getProductById(id);
+    if (!product) return errorResponse(res, 404, "Product not found");
+    return successResponse(res, product, "Product fetched successfully");
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    return errorResponse(res, 500, message);
+    return errorResponse(res, 400, message);
   }
 };
 
 export const create = async (req: Request, res: Response) => {
   try {
     const userId = (req as RequestWithUser).user?.id;
-    const { name } = req.body as { name: string };
-    const category = await createCategory({ name, userId });
-    return successResponse(res, category, "Category created successfully");
+    const {
+      name,
+      price,
+      stock = 0,
+      category_id,
+    } = req.body as {
+      name: string;
+      price: number;
+      stock?: number;
+      category_id: string;
+    };
+    const product = await createProduct({ name, price, stock, category_id, userId });
+    return successResponse(res, product, "Product created successfully");
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    return errorResponse(res, 500, message);
+    return errorResponse(res, 400, message);
   }
 };
 
@@ -67,13 +77,18 @@ export const update = async (req: Request, res: Response) => {
   try {
     const userId = (req as RequestWithUser).user?.id;
     const { id } = req.params;
-    const { name } = req.body as { name: string };
-    const updated = await updateCategory(id, { name, userId });
-    if (!updated) return errorResponse(res, 404, "Category not found");
-    return successResponse(res, updated, "Category updated successfully");
+    const { name, price, stock, category_id } = req.body as {
+      name: string;
+      price: number;
+      stock: number;
+      category_id: string;
+    };
+    const updated = await updateProduct(id, { name, price, stock, category_id, userId });
+    if (!updated) return errorResponse(res, 404, "Product not found");
+    return successResponse(res, updated, "Product updated successfully");
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    return errorResponse(res, 500, message);
+    return errorResponse(res, 400, message);
   }
 };
 
@@ -81,11 +96,11 @@ export const remove = async (req: Request, res: Response) => {
   try {
     const userId = (req as RequestWithUser).user?.id;
     const { id } = req.params;
-    const deleted = await deleteCategory(id, { userId });
-    if (!deleted) return errorResponse(res, 404, "Category not found");
-    return successResponse(res, { id }, "Category deleted successfully");
+    const deleted = await deleteProduct(id, { userId });
+    if (!deleted) return errorResponse(res, 404, "Product not found");
+    return successResponse(res, { id }, "Product deleted successfully");
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    return errorResponse(res, 500, message);
+    return errorResponse(res, 400, message);
   }
 };

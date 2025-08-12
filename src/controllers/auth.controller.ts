@@ -10,7 +10,7 @@ export const register = async (req: Request, res: Response) => {
     return successResponse(res, user, "User registered successfully");
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    return errorResponse(res, 400, message);
+    return errorResponse(res, 500, message);
   }
 };
 
@@ -21,6 +21,6 @@ export const login = async (req: Request, res: Response) => {
     return successResponse(res, { user, token }, "Login successful");
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    return errorResponse(res, 400, message);
+    return errorResponse(res, 500, message);
   }
 };
