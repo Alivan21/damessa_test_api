@@ -4,8 +4,8 @@ import { JwtPayload } from "jsonwebtoken";
 import { verifyToken } from "@/helpers/jwt.helper";
 import { errorResponse } from "@/helpers/response.helper";
 
-interface RequestWithUser extends Request {
-  user: JwtPayload;
+export interface RequestWithUser extends Request {
+  user: JwtPayload & { id?: string };
 }
 
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
@@ -14,7 +14,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
 
   try {
     const decoded = verifyToken(token);
-    (req as RequestWithUser).user = decoded as JwtPayload;
+    (req as RequestWithUser).user = decoded as JwtPayload & { id?: string };
     next();
   } catch {
     return errorResponse(res, 401, "Invalid token");

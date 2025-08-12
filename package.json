@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
   "scripts": {
     "dev": "tsx --watch src/index.ts",
     "start": "node dist/index.js",
@@ -20,12 +24,9 @@
     "seed:down": "tsx src/seed.ts down",
     "seed:status": "tsx src/seed.ts status",
     "seed:pending": "tsx src/seed.ts pending",
+    "db:fresh": "pnpm seed:down && pnpm migrate:down && pnpm migrate:up && pnpm seed:up",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "dotenv": "^17.2.1",
