@@ -1,7 +1,8 @@
-import { verifyToken } from "@/helpers/jwt.helper";
-import { errorResponse } from "@/helpers/response.helper";
 import { NextFunction, Request, Response } from "express";
 import { JwtPayload } from "jsonwebtoken";
+
+import { verifyToken } from "@/helpers/jwt.helper";
+import { errorResponse } from "@/helpers/response.helper";
 
 interface RequestWithUser extends Request {
   user: JwtPayload;

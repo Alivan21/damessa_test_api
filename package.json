@@ -12,6 +12,14 @@
     "lint:fix": "eslint --fix .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "migrate:up": "tsx src/migrate.ts up",
+    "migrate:down": "tsx src/migrate.ts down",
+    "migrate:status": "tsx src/migrate.ts status",
+    "migrate:pending": "tsx src/migrate.ts pending",
+    "seed:up": "tsx src/seed.ts up",
+    "seed:down": "tsx src/seed.ts down",
+    "seed:status": "tsx src/seed.ts status",
+    "seed:pending": "tsx src/seed.ts pending",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -25,6 +33,7 @@
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.3",
     "sequelize": "^6.37.7",
+    "umzug": "^3.8.0",
     "zod": "^4.0.17"
   },
   "devDependencies": {
