@@ -59,3 +59,5 @@ Category.init(
     deletedAt: "deleted_at",
   },
 );
+
+// Associations are defined in product.model.ts to avoid circular imports

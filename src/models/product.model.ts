@@ -1,5 +1,6 @@
 import { sequelize } from "@/config/database";
 import { DataTypes, Model, Optional } from "sequelize";
+import { Category } from "./category.model";
 
 export interface ProductAttributes {
   id: string;
@@ -75,3 +76,9 @@ Product.init(
     deletedAt: "deleted_at",
   },
 );
+
+// Associations
+Product.belongsTo(Category, {
+  foreignKey: "category_id",
+  as: "category",
+});

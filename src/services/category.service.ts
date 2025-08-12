@@ -1,8 +1,7 @@
-import { randomUUID } from "node:crypto";
-import { QueryTypes } from "sequelize";
+import { Op } from "sequelize";
 
-import { sequelize } from "@/config/database";
 import { SortDirection } from "@/helpers/pagination.helper";
+import { Category } from "@/models/category.model";
 import { buildPaginationMeta, sanitizePagination } from "@/services/pagination.service";
 
 export interface CategoriesQueryParams {
@@ -30,98 +29,84 @@ export const getCategories = async ({
 
   const safeSortBy = ALLOWED_SORT_FIELDS.has(sortBy) ? sortBy : "created_at";
   const direction = order.toLowerCase() === "asc" ? "ASC" : "DESC";
+  const where = search
+    ? ({
+        name: { [Op.like]: `%${search}%` },
+      } as const)
+    : ({} as const);
 
-  const whereClauses: string[] = ["deleted_at IS NULL"];
-  const replacements: Record<string, unknown> = {};
-  if (search) {
-    whereClauses.push("name LIKE :search");
-    replacements.search = `%${search}%`;
-  }
-  const whereSql = whereClauses.length ? `WHERE ${whereClauses.join(" AND ")}` : "";
-
-  const countRows = (await sequelize.query<{ count: number }>(
-    `SELECT COUNT(*) as count FROM categories ${whereSql}`,
-    { type: QueryTypes.SELECT, replacements },
-  )) as { count: number }[];
-  const count = Number(countRows[0]?.count ?? 0);
-
-  const rows = await sequelize.query(
-    `SELECT id, name, created_at, created_by, modified_at, modified_by, deleted_at, deleted_by
-     FROM categories
-     ${whereSql}
-     ORDER BY ${safeSortBy} ${direction}
-     LIMIT :limit OFFSET :offset`,
-    {
-      type: QueryTypes.SELECT,
-      replacements: { ...replacements, limit: sanitizedPerPage, offset },
-    },
-  );
+  const { count, rows } = await Category.findAndCountAll({
+    where,
+    paranoid: true,
+    attributes: [
+      "id",
+      "name",
+      "created_at",
+      "created_by",
+      "modified_at",
+      "modified_by",
+      "deleted_at",
+      "deleted_by",
+    ],
+    order: [[safeSortBy as string, direction as "ASC" | "DESC"]],
+    limit: sanitizedPerPage,
+    offset,
+  });
 
   const meta = buildPaginationMeta({
     basePath,
     query,
-    total: count,
+    total: count as number,
     page: sanitizedPage,
     perPage: sanitizedPerPage,
   });
 
-  return { items: rows, meta };
+  return { items: rows.map((r) => r.get({ plain: true })), meta };
 };
 
 export const getCategoryById = async (id: string) => {
-  const rows = await sequelize.query(
-    `SELECT id, name, created_at, created_by, modified_at, modified_by, deleted_at, deleted_by
-     FROM categories WHERE id = :id AND deleted_at IS NULL LIMIT 1`,
-    { type: QueryTypes.SELECT, replacements: { id } },
-  );
-  return (rows as unknown as Record<string, unknown>[])[0] ?? null;
+  const row = await Category.findOne({
+    where: { id },
+    paranoid: true,
+    attributes: [
+      "id",
+      "name",
+      "created_at",
+      "created_by",
+      "modified_at",
+      "modified_by",
+      "deleted_at",
+      "deleted_by",
+    ],
+  });
+  return row ? (row.get({ plain: true }) as unknown as Record<string, unknown>) : null;
 };
 
 export const createCategory = async ({ name, userId }: { name: string; userId?: string }) => {
-  const now = new Date();
-  const id = randomUUID();
-  await sequelize.query(
-    `INSERT INTO categories (id, name, created_by, modified_by, created_at, modified_at, deleted_at, deleted_by)
-     VALUES (:id, :name, :created_by, :modified_by, :created_at, :modified_at, NULL, NULL)`,
-    {
-      type: QueryTypes.INSERT,
-      replacements: {
-        id,
-        name,
-        created_by: userId ?? null,
-        modified_by: userId ?? null,
-        created_at: now,
-        modified_at: now,
-      },
-    },
-  );
-  return getCategoryById(id);
+  const category = await Category.create({
+    name,
+    created_by: userId ?? null,
+    modified_by: userId ?? null,
+  });
+  return getCategoryById(category.id);
 };
 
 export const updateCategory = async (
   id: string,
   { name, userId }: { name: string; userId?: string },
 ) => {
-  const [, affectedRows] = await sequelize.query(
-    `UPDATE categories SET name = :name, modified_by = :modified_by, modified_at = :modified_at
-     WHERE id = :id AND deleted_at IS NULL`,
-    {
-      type: QueryTypes.UPDATE,
-      replacements: { id, name, modified_by: userId ?? null, modified_at: new Date() },
-    },
+  const [affectedRows] = await Category.update(
+    { name, modified_by: userId ?? null, modified_at: new Date() },
+    { where: { id, deleted_at: null } },
   );
   if (!affectedRows) return null;
   return getCategoryById(id);
 };
 
 export const deleteCategory = async (id: string, { userId }: { userId?: string }) => {
-  const [, affectedRows] = await sequelize.query(
-    `UPDATE categories SET deleted_at = :deleted_at, deleted_by = :deleted_by
-     WHERE id = :id AND deleted_at IS NULL`,
-    {
-      type: QueryTypes.UPDATE,
-      replacements: { id, deleted_at: new Date(), deleted_by: userId ?? null },
-    },
+  const [affectedRows] = await Category.update(
+    { deleted_at: new Date(), deleted_by: userId ?? null },
+    { where: { id, deleted_at: null } },
   );
   return Boolean(affectedRows);
 };
